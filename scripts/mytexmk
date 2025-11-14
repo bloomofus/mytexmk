@@ -1,7 +1,50 @@
 #!/bin/bash
 
-# 检查是否提供了参数
-if [ $# -eq 0 ]; then
+# 获取脚本所在目录（处理软链接情况）
+get_script_dir() {
+    local source="${BASH_SOURCE[0]}"
+    while [[ -h "$source" ]]; do
+        local dir="$(cd -P "$(dirname "$source")" && pwd)"
+        source="$(readlink "$source")"
+        [[ $source != /* ]] && source="$dir/$source"
+    done
+    cd -P "$(dirname "$source")" && pwd
+}
+
+SCRIPT_DIR="$(get_script_dir)"
+TEMPLATE_DIR="$(dirname "$SCRIPT_DIR")/template"
+
+# 根据参数数量判断操作类型
+if [ $# -eq 2 ]; then
+    # 两个参数，认为是要使用模板创建项目
+    TEMPLATE_NAME="$1"
+    PROJECT_NAME="$2"
+    TEMPLATE_PATH="$TEMPLATE_DIR/$TEMPLATE_NAME"
+    
+    # 检查模板是否存在
+    if [ ! -d "$TEMPLATE_PATH" ]; then
+        echo "错误: 模板 '$TEMPLATE_NAME' 不存在于 '$TEMPLATE_DIR' 目录下"
+        echo "可用模板:"
+        if [ -d "$TEMPLATE_DIR" ] && [ "$(ls -A "$TEMPLATE_DIR")" ]; then
+            ls "$TEMPLATE_DIR"
+        else
+            echo "  (无可用模板)"
+        fi
+        exit 1
+    fi
+    
+    # 检查目标目录是否已存在
+    if [ -d "$PROJECT_NAME" ]; then
+        echo "错误: 目录 '$PROJECT_NAME' 已存在"
+        exit 1
+    fi
+    
+    # 复制模板到新目录
+    echo "正在从 '$TEMPLATE_NAME' 创建项目 '$PROJECT_NAME'..."
+    cp -r "$TEMPLATE_PATH" "$PROJECT_NAME"
+    echo "项目 '$PROJECT_NAME' 创建成功!"
+    exit 0
+elif [ $# -eq 0 ]; then
     # 没有提供参数，检查当前目录下的tex文件
     tex_files=(*.tex)
     
@@ -24,7 +67,7 @@ if [ $# -eq 0 ]; then
     # 使用找到的唯一tex文件
     tex_file="${tex_files[0]}"
 else
-    # 使用提供的参数
+    # 一个或多个参数，都认为是指定文件进行编译
     tex_file="$1"
     
     # 检查文件是否存在
