@@ -9,6 +9,7 @@
 3. 基于模板快速创建新项目
 
 ## 安装
+命令工具配置
 
 ```bash
 # 添加执行权限
@@ -16,6 +17,7 @@ chmod +x ~/apps/tex_onceMake/scripts/mytexmk
 
 # 创建软链接以便全局使用（推荐）
 sudo ln -s ~/apps/tex_onceMake/scripts/mytexmk /usr/local/bin/mytexmk
+sudo ln -s ~/apps/tex_onceMake/scripts/mytexmk ~/.local/bin/mytexmk
 
 # 或者添加到 PATH 环境变量
 echo 'export PATH="$HOME/apps/tex_onceMake/scripts:$PATH"' >> ~/.bashrc
@@ -57,11 +59,11 @@ mytexmk 计算机学报 myPaper
 
 ## 依赖
 
-- TeXLive 发行版（包含 xelatex 和 latexmk）
+- TeXLive 
 
 ```bash
-# Ubuntu/Debian 系统安装命令
-sudo apt install texlive-latex-extra latexmk
+sudo apt update
+sudo apt install texlive-full -y
 ```
 
 ## 许可证
